@@ -1,0 +1,6 @@
+flask
+scapy
+altgraph>=0.17.2
+netprotocols>=0.5.0
+pyinstaller>=6.0.0
+pyinstaller-hooks-contrib

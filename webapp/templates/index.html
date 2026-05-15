@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SentinelNode — Enterprise Network Traffic Analysis and Intrusion Detection Platform">
+    <title>SentinelNode | Network Traffic Analysis & IDS Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- ═══ SYSTEM STATUS BANNER ═══ -->
+    <div id="systemBanner" class="system-banner banner-idle">
+        <span id="bannerIcon">⭕</span>
+        <span id="bannerText">SYSTEM STATUS: IDLE — AWAITING OPERATOR COMMAND</span>
+    </div>
+
+    <div class="app-shell">
+
+        <!-- ═══ SIDEBAR ═══ -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon"><i class="fas fa-shield-halved"></i></div>
+                <div class="brand-text">
+                    <span class="brand-name">SentinelNode</span>
+                    <span class="brand-ver">Enterprise v2.1</span>
+                </div>
+            </div>
+
+            <nav class="sidenav">
+                <div class="sidenav-label">PLATFORM</div>
+                <a href="#" class="sidenav-link active" id="nav-dashboard">
+                    <i class="fas fa-gauge-high"></i> Dashboard
+                </a>
+                <a href="#" class="sidenav-link" id="nav-alerts">
+                    <i class="fas fa-bell"></i> Alerts
+                    <span class="nav-badge" id="navAlertCount">0</span>
+                </a>
+                <a href="#" class="sidenav-link" id="nav-analytics">
+                    <i class="fas fa-chart-mixed"></i> Analytics
+                </a>
+
+                <div class="sidenav-label" style="margin-top:20px">CAPTURE</div>
+                <div class="sidebar-control">
+                    <label class="ctrl-label">Traffic Source Mode</label>
+                    <div class="source-toggle">
+                        <button class="src-btn active" id="btnLive">
+                            <i class="fas fa-satellite-dish"></i> Live Capture
+                        </button>
+                        <button class="src-btn" id="btnSim">
+                            <i class="fas fa-flask"></i> Simulation
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sidebar-control">
+                    <label class="ctrl-label">Network Interface</label>
+                    <input type="text" class="ctrl-input" id="interfaceInput" placeholder="Auto-detect">
+                </div>
+
+                <button class="btn-monitor" id="monitorBtn">
+                    <i class="fas fa-play" id="monitorIcon"></i>
+                    <span id="monitorLabel">Start Monitoring</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="last-update">
+                    Last sync: <span id="lastSync">—</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ═══ MAIN CONTENT ═══ -->
+        <main class="main-content">
+
+        <!-- ══════════════════════════════════════
+             VIEW 1: DASHBOARD
+             ═══════════════════════════════════ -->
+        <div id="view-dashboard" class="view active-view">
+
+            <!-- PAGE HEADER -->
+            <header class="page-header">
+                <div>
+                    <h1 class="page-title">Network Traffic Analysis</h1>
+                    <p class="page-subtitle">Real-time packet inspection &amp; intrusion detection</p>
+                </div>
+                <div class="header-badges">
+                    <div class="mode-chip" id="modeChip">
+                        <span class="chip-dot"></span>
+                        <span id="modeChipText">Idle</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- KPI CARDS -->
+            <section class="kpi-row">
+                <div class="kpi-card" id="kpiPackets">
+                    <div class="kpi-icon"><i class="fas fa-network-wired"></i></div>
+                    <div class="kpi-body">
+                        <span class="kpi-label">Packets Captured</span>
+                        <span class="kpi-value" id="kpiPacketVal">0</span>
+                    </div>
+                    <div class="kpi-trend up" id="kpiPacketTrend">—</div>
+                </div>
+                <div class="kpi-card danger">
+                    <div class="kpi-icon"><i class="fas fa-circle-exclamation"></i></div>
+                    <div class="kpi-body">
+                        <span class="kpi-label">Critical Alerts</span>
+                        <span class="kpi-value" id="kpiCriticalVal">0</span>
+                    </div>
+                </div>
+                <div class="kpi-card warning">
+                    <div class="kpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                    <div class="kpi-body">
+                        <span class="kpi-label">High Severity</span>
+                        <span class="kpi-value" id="kpiHighVal">0</span>
+                    </div>
+                </div>
+                <div class="kpi-card medium">
+                    <div class="kpi-icon"><i class="fas fa-shield-exclamation"></i></div>
+                    <div class="kpi-body">
+                        <span class="kpi-label">Medium / Low</span>
+                        <span class="kpi-value" id="kpiMedVal">0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CHARTS ROW -->
+            <section class="charts-row">
+                <div class="chart-card glass" id="chartTimeline">
+                    <div class="chart-header">
+                        <span class="chart-title"><i class="fas fa-chart-line"></i> Traffic Volume — Real-Time</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card glass">
+                    <div class="chart-header">
+                        <span class="chart-title"><i class="fas fa-chart-pie"></i> Protocol Distribution</span>
+                    </div>
+                    <div class="chart-body chart-body-small">
+                        <canvas id="protoChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card glass">
+                    <div class="chart-header">
+                        <span class="chart-title"><i class="fas fa-chart-bar"></i> Alert Severity</span>
+                    </div>
+                    <div class="chart-body chart-body-small">
+                        <canvas id="severityChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TRAFFIC TABLE + ALERT FEED -->
+            <section class="data-row">
+                <div class="panel glass traffic-panel">
+                    <div class="panel-header">
+                        <span class="panel-title"><i class="fas fa-stream"></i> Real-Time Traffic Stream</span>
+                        <div id="simBadge" class="sim-badge hidden">
+                            <i class="fas fa-flask"></i> Operational Mode: Simulation (No Live Traffic)
+                        </div>
+                        <span class="panel-count">Showing <span id="packetDisplayCount">0</span> records</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Source IP</th>
+                                    <th>Protocol</th>
+                                    <th>Destination IP</th>
+                                    <th>Port</th>
+                                    <th>Size</th>
+                                    <th>Threat Level</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trafficBody">
+                                <tr class="empty-row"><td colspan="7">
+                                    <div class="empty-state">
+                                        <i class="fas fa-satellite-dish"></i>
+                                        <p>Awaiting network traffic data…</p>
+                                    </div>
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="panel glass alert-panel">
+                    <div class="panel-header">
+                        <span class="panel-title"><i class="fas fa-shield-virus"></i> Security Event Log</span>
+                        <button class="btn-ghost" id="clearAlertsBtn"><i class="fas fa-trash-can"></i> Clear</button>
+                    </div>
+                    <div class="alert-feed" id="alertFeed">
+                        <div class="empty-state">
+                            <i class="fas fa-shield-check" style="color:var(--success)"></i>
+                            <p>No security events detected.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div><!-- /view-dashboard -->
+
+
+        <!-- ══════════════════════════════════════
+             VIEW 2: ALERTS
+             ═══════════════════════════════════ -->
+        <div id="view-alerts" class="view">
+            <header class="page-header">
+                <div>
+                    <h1 class="page-title">Security Alerts</h1>
+                    <p class="page-subtitle">Full intrusion detection event log with severity classification</p>
+                </div>
+                <div class="header-badges">
+                    <button class="btn-ghost" id="clearAlertsPageBtn"><i class="fas fa-trash-can"></i> Clear All</button>
+                </div>
+            </header>
+
+            <!-- Severity filter bar -->
+            <div class="filter-bar glass">
+                <span class="filter-label"><i class="fas fa-filter"></i> Filter by Severity:</span>
+                <button class="filter-btn active" data-sev="ALL">All</button>
+                <button class="filter-btn critical" data-sev="CRITICAL">Critical</button>
+                <button class="filter-btn high"     data-sev="HIGH">High</button>
+                <button class="filter-btn medium"   data-sev="MEDIUM">Medium</button>
+                <button class="filter-btn low"      data-sev="LOW">Low</button>
+            </div>
+
+            <!-- Summary cards -->
+            <section class="kpi-row">
+                <div class="kpi-card danger">
+                    <div class="kpi-icon"><i class="fas fa-skull-crossbones"></i></div>
+                    <div class="kpi-body">
+                        <span class="kpi-label">Critical</span>
+                        <span class="kpi-value" id="alertPageCritical">0</span>
+                    </div>
+                </div>
+                <div class="kpi-card warning">
+                    <div class="kpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                    <div class="kpi-body">
+                        <span class="kpi-label">High</span>
+                        <span class="kpi-value" id="alertPageHigh">0</span>
+                    </div>
+                </div>
+                <div class="kpi-card medium">
+                    <div class="kpi-icon"><i class="fas fa-circle-info"></i></div>
+                    <div class="kpi-body">
+                        <span class="kpi-label">Medium</span>
+                        <span class="kpi-value" id="alertPageMedium">0</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background:rgba(110,231,247,0.1);color:var(--sev-low)"><i class="fas fa-circle-check"></i></div>
+                    <div class="kpi-body">
+                        <span class="kpi-label">Low</span>
+                        <span class="kpi-value" id="alertPageLow">0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Full alerts table -->
+            <div class="panel glass" style="flex:1">
+                <div class="panel-header">
+                    <span class="panel-title"><i class="fas fa-list-ul"></i> All Security Events</span>
+                    <span class="panel-count">Total: <span id="alertPageTotal">0</span> events</span>
+                </div>
+                <div class="table-wrap" style="max-height:520px">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Severity</th>
+                                <th>Event Description</th>
+                                <th>Source IP</th>
+                                <th>Protocol</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alertsTableBody">
+                            <tr class="empty-row"><td colspan="5">
+                                <div class="empty-state">
+                                    <i class="fas fa-shield-check" style="color:var(--success)"></i>
+                                    <p>No alerts generated yet. Start monitoring to detect threats.</p>
+                                </div>
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div><!-- /view-alerts -->
+
+
+        <!-- ══════════════════════════════════════
+             VIEW 3: ANALYTICS
+             ═══════════════════════════════════ -->
+        <div id="view-analytics" class="view">
+            <header class="page-header">
+                <div>
+                    <h1 class="page-title">Network Analytics</h1>
+                    <p class="page-subtitle">Traffic patterns, protocol breakdown, and threat intelligence</p>
+                </div>
+            </header>
+
+            <!-- Top stats -->
+            <section class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fas fa-network-wired"></i></div>
+                    <div class="kpi-body">
+                        <span class="kpi-label">Total Packets</span>
+                        <span class="kpi-value" id="analyticsPackets">0</span>
+                    </div>
+                </div>
+                <div class="kpi-card danger">
+                    <div class="kpi-icon"><i class="fas fa-bell"></i></div>
+                    <div class="kpi-body">
+                        <span class="kpi-label">Total Alerts</span>
+                        <span class="kpi-value" id="analyticsAlerts">0</span>
+                    </div>
+                </div>
+                <div class="kpi-card warning">
+                    <div class="kpi-icon"><i class="fas fa-clock"></i></div>
+                    <div class="kpi-body">
+                        <span class="kpi-label">Last Updated</span>
+                        <span class="kpi-value" id="analyticsLastUpdate" style="font-size:1rem">—</span>
+                    </div>
+                </div>
+                <div class="kpi-card medium">
+                    <div class="kpi-icon"><i class="fas fa-server"></i></div>
+                    <div class="kpi-body">
+                        <span class="kpi-label">Session Mode</span>
+                        <span class="kpi-value" id="analyticsMode" style="font-size:1rem">—</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts grid (larger) -->
+            <div class="analytics-grid">
+                <div class="chart-card glass analytics-card-wide">
+                    <div class="chart-header">
+                        <span class="chart-title"><i class="fas fa-chart-line"></i> Traffic Volume Over Time (Packets/sec)</span>
+                    </div>
+                    <div class="chart-body" style="min-height:260px">
+                        <canvas id="analyticsTimelineChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card glass">
+                    <div class="chart-header">
+                        <span class="chart-title"><i class="fas fa-chart-pie"></i> Protocol Distribution</span>
+                    </div>
+                    <div class="chart-body" style="min-height:260px">
+                        <canvas id="analyticsProtoChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card glass">
+                    <div class="chart-header">
+                        <span class="chart-title"><i class="fas fa-chart-bar"></i> Alert Severity Breakdown</span>
+                    </div>
+                    <div class="chart-body" style="min-height:260px">
+                        <canvas id="analyticsSeverityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /view-analytics -->
+
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html>
