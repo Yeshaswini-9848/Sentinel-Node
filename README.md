@@ -132,7 +132,7 @@ TrafficLogger  NetworkSniffer.packet_queue
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/EONRaider/Packet-Sniffer.git
+git clone https://github.com/Yeshaswini-9848/Sentinel-Node
 cd Packet-Sniffer
 
 # 2. Create a virtual environment (Python 3.11 recommended on Windows)
@@ -223,8 +223,3 @@ The simulation mode generates realistic traffic patterns (including attack scena
 ### 5. Portfolio & Client Demonstration
 The professional UI with live charts, color-coded severity levels, and structured logs makes SentinelNode suitable for showcasing network engineering and security capabilities to technical interviewers and clients.
 
----
-
-## ⚖️ Legal Disclaimer
-
-Use of code contained in this repository for engaging targets without prior mutual consent is illegal. It is the end user's responsibility to comply with all applicable local, state, and federal laws. This tool is endorsed solely for **educational environments** and **authorized penetration testing engagements**.
